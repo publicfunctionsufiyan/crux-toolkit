@@ -67,6 +67,12 @@ class TheoreticalPeakSetBYSparse {
   explicit TheoreticalPeakSetBYSparse(int capacity) {
     peaks_[0].Init(capacity);
     peaks_[1].Init(capacity);
+    
+    peaks_[2].Init(capacity);
+    peaks_[3].Init(capacity);
+    peaks_[4].Init(capacity);
+    peaks_[5].Init(capacity);
+    
     peak_mask_end = MaxBin::Global().CacheBinEnd();
     cache_end = MaxBin::Global().CacheBinEnd()*NUM_PEAK_TYPES;
     peak_mask = new int[peak_mask_end];
@@ -90,11 +96,23 @@ class TheoreticalPeakSetBYSparse {
     }
     peaks_[0].clear();
     peaks_[1].clear();
+    peaks_[2].clear();
+    peaks_[3].clear();
+    peaks_[4].clear();
+    peaks_[5].clear();
   }
 
   void AddYIon(double mass, int charge) {
     assert(charge <= 2);
     int index_y = MassConstants::mass2bin(mass + MassConstants::Y + MASS_PROTON, charge);
+    
+    if (index_y >= 0 && index_y < peak_mask_end-1) {
+      if (charge == 1)
+        peaks_[4].push_back(index_y+index_y);
+      else  // charge == 2
+        peaks_[5].push_back(index_y+index_y+1);
+    }
+    
     if (index_y >= 0 && index_y < peak_mask_end-1 && !peak_mask[index_y]) {
       peak_mask[index_y] = 1;
       index_y += index_y;
@@ -103,12 +121,22 @@ class TheoreticalPeakSetBYSparse {
       }  
       if (index_y < cache_end)
         peaks_[charge-1].push_back(index_y);
+
     }
   }
 
   void AddBIon(double mass, int charge) {
     assert(charge <= 2);
     int index_b = MassConstants::mass2bin(mass + MassConstants::B + MASS_PROTON, charge);
+
+    if (index_b >= 0 && index_b < peak_mask_end-1) {
+      
+      if (charge == 1)
+        peaks_[2].push_back(index_b + index_b);
+      else  // charge == 2
+        peaks_[3].push_back(index_b + index_b + 1);
+    }
+
     if (index_b >= 0 && index_b < peak_mask_end-1 && !peak_mask[index_b]) {
       peak_mask[index_b] = 1;
       index_b += index_b;
@@ -126,7 +154,13 @@ class TheoreticalPeakSetBYSparse {
     int* peak_mask = 0; //  MaxBin::Global().CacheBinEnd();
     int peak_mask_end = 0;
     int cache_end = 0;
-    TheoreticalPeakArr peaks_[2];
+    TheoreticalPeakArr peaks_[6];
+    
+    // peaks_[2]   : peaks_0b
+    // peaks_[3]   : peaks_1b
+    // peaks_[4]   : peaks_0y
+    // peaks_[5]   : peaks_1y
+
 };
 
 // This class is used to store theoretical b ions only

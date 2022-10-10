@@ -681,10 +681,13 @@ void TideSearchApplication::search(void* threadarg) {
           quantile_score = scores[quantile_pos]+TAILOR_OFFSET; // Make sure scores positive
         }  //End of Tailor
         TideMatchSet::Arr match_arr(nCandPeptide);
+        // For entropy calculation
+        deque<Peptide*>::const_iterator iter_ = active_peptide_queue->iter_;
+        const int* cache = observed.GetCache();          // Experimental spectrum is in the cache
 
         for (TideMatchSet::Arr2::iterator it = match_arr2.begin();
              it != match_arr2.end();
-             ++it) {
+             ++it, ++iter_) {
           int peptide_idx = candidatePeptideStatusSize - (it->second);
           if ((*candidatePeptideStatus)[peptide_idx]) {
             TideMatchSet::Scores curScore;
@@ -693,10 +696,65 @@ void TideSearchApplication::search(void* threadarg) {
             //Added for tailor score calibration method by AKF
             if (Params::GetBool("use-tailor-calibration")) {
               curScore.tailor = ((double)(it->first / XCORR_SCALING) + TAILOR_OFFSET) / quantile_score;
-            }            
+            }    
+            
+            // Caculate the entropy here.
+            
+            // Iterate orver the 0b peaks (single charge b-ions)
+            for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_0b.begin(); iter_uint != (*iter_)->peaks_0b.end(); iter_uint++) {
+              unsigned int peak_idx = *iter_uint;
+            }
+            
+            // Iterate orver the 1b peaks (double charge b-ions)
+            for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_1b.begin(); iter_uint != (*iter_)->peaks_1b.end(); iter_uint++) {
+              unsigned int peak_idx = *iter_uint;
+            }
+
+            // Iterate orver the 0y peaks (single charge y-ions)
+            for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_0y.begin(); iter_uint != (*iter_)->peaks_0y.end(); iter_uint++) {
+              unsigned int peak_idx = *iter_uint;
+            }
+
+            // Iterate orver the 1y peaks (double charge y-ions)
+            for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_1y.begin(); iter_uint != (*iter_)->peaks_1y.end(); iter_uint++) {
+              unsigned int peak_idx = *iter_uint;
+            }
+            
+            //calculate the entropy. 
+            double entropy = 0.0;
+            
+            
+            curScore.entropy = entropy;
+
             match_arr.push_back(curScore);
           }
         }
+
+/*
+  //Scoring in C++		
+  deque<Peptide*>::const_iterator iter_ = active_peptide_queue->iter_;
+  TideMatchSet::Arr2::iterator it = match_arr->begin();
+  const int* cache = observed.GetCache();        
+  int cnt = 0;
+  for (; iter_ != active_peptide_queue->end_; ++iter_, ++it, ++cnt) {
+    int xcorr = 0;
+
+    // Score with single charged theoretical peaks
+    for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_0.begin();
+      iter_uint != (*iter_)->peaks_0.end();
+      iter_uint++) {
+      xcorr += cache[*iter_uint];
+    }
+    // Score with double charged theoretical peaks
+    if (charge > 2){
+      for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_1.begin();
+        iter_uint != (*iter_)->peaks_1.end();
+        iter_uint++) {
+        xcorr += cache[*iter_uint];
+      }
+    }
+    
+*/
 
         TideMatchSet matches(&match_arr, highest_mz);
 
@@ -1371,7 +1429,7 @@ void TideSearchApplication::collectScoresCompiled(
         xcorr += cache[*iter_uint];
       }
     }
-
+    
     it->first = xcorr;
     it->second = queue_size - cnt;
   } 

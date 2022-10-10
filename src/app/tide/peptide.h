@@ -259,6 +259,11 @@ class Peptide {
   vector<unsigned int> peaks_0;
   vector<unsigned int> peaks_1;
   
+  vector<unsigned int> peaks_0b;
+  vector<unsigned int> peaks_0y;
+
+  vector<unsigned int> peaks_1b;
+  vector<unsigned int> peaks_1y;
 
  private:
   template<class W> void AddIons(W* workspace, bool dia_mode = false) ;

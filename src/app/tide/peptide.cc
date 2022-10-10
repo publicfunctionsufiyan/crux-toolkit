@@ -182,15 +182,48 @@ void Peptide::Compile(const TheoreticalPeakArr* peaks,
   int i;
   peaks_0.clear();
   peaks_1.clear();
+  
+  peaks_0b.clear();
+  peaks_1b.clear();
+  peaks_0y.clear();
+  peaks_1y.clear();
+  
   peaks_0.reserve(peaks[0].size());
   peaks_1.reserve(peaks[1].size());
   
+  peaks_0b.reserve(peaks[0].size());
+  peaks_0y.reserve(peaks[0].size());
+  peaks_1b.reserve(peaks[0].size());
+  peaks_1y.reserve(peaks[0].size());
+
   for (i = 0; i < peaks[0].size(); ++i) {
     peaks_0.push_back(peaks[0][i]);
   }
   for (i = 0; i < peaks[1].size(); ++i) {
     peaks_1.push_back(peaks[1][i]);
   }
+
+  // peaks_[2]   : peaks_0b
+  // peaks_[3]   : peaks_1b
+  // peaks_[4]   : peaks_0y
+  // peaks_[5]   : peaks_1y
+    
+  for (i = 0; i < peaks[2].size(); ++i) {
+    peaks_0b.push_back(peaks[2][i]);
+  }
+
+  for (i = 0; i < peaks[3].size(); ++i) {
+    peaks_1b.push_back(peaks[3][i]);
+  }
+
+  for (i = 0; i < peaks[4].size(); ++i) {
+    peaks_0y.push_back(peaks[4][i]);
+  }
+
+  for (i = 0; i < peaks[5].size(); ++i) {
+    peaks_1y.push_back(peaks[5][i]);
+  }
+  
   prog1_ = (void*)3;  //Mark the peptide that it contains theoretical peaks to score
 #else
   // Create the Assembly code for scoring. 
