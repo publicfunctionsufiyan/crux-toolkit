@@ -721,7 +721,7 @@ void TideSearchApplication::search(void* threadarg) {
               unsigned int peak_idx = *iter_uint;
               if (cache[peak_idx] > 0 ) 
                 hit_distribution[cnt] += 1;
-              --cnt;
+              ++cnt;
             }
 
             // Iterate orver the 0y peaks (single charged y-ions)
@@ -740,27 +740,17 @@ void TideSearchApplication::search(void* threadarg) {
                 hit_distribution[cnt] += 1;
               --cnt;
             }
-            double entropy = 0.0;
-            
-            
+            //calculate the entropy. 
+            double entropy = 0.0;            
             int sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0);
             
-            for(int i=0; i < hit_distribution.size(); i++){
-              hit_distribution[i] /= sum_of_elems + 1e-9;
-              entropy += (-1* hit_distribution[i] * log(hit_distribution[i])); 
-            }
-
-           
-            //calculate the entropy. 
-            
-          
-
-           
             int list_len = hit_distribution.size();
-            int normalized_ent = entropy/(-1*log(1/list_len));
- 
+            for(int i=0; i < list_len; i++){
+              hit_distribution[i] /= sum_of_elems + 1e-9;
+              entropy += (-1 * hit_distribution[i] * log(hit_distribution[i])); 
+            }
             
-            curScore.entropy = normalized_ent;
+            curScore.entropy = entropy/(-1*log(1/list_len));
 
             match_arr.push_back(curScore);
           }
