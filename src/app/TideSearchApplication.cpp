@@ -16,6 +16,9 @@
 #include "util/StringUtils.h"
 #include <math.h> //Added by Andy Lin
 #include <map> //Added by Andy Lin
+#include <numeric>
+
+using namespace std;
 
 #define TAILOR_QUANTILE_TH 0.01
 #define TAILOR_OFFSET 5.0
@@ -699,8 +702,9 @@ void TideSearchApplication::search(void* threadarg) {
             }    
             
             // Caculate the entropy here.
-            int peptide_len = peaks_0b.size()+1;
-            vector<double> hit_distribution.Reserve(peptide_len); 
+            int peptide_len = (*iter_)->peaks_0b.size()+1;
+            vector<double> hit_distribution;
+            hit_distribution.reserve(peptide_len); 
             
             // Iterate orver the 0b peaks (single charged b-ions)
             int cnt = 0;
@@ -709,11 +713,15 @@ void TideSearchApplication::search(void* threadarg) {
               if (cache[peak_idx] > 0 ) 
                 hit_distribution[cnt] += 1;
               ++cnt;
+              
             }
             
             // Iterate orver the 1b peaks (double charged b-ions)
             for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_1b.begin(); iter_uint != (*iter_)->peaks_1b.end(); iter_uint++) {
               unsigned int peak_idx = *iter_uint;
+              if (cache[peak_idx] > 0 ) 
+                hit_distribution[cnt] += 1;
+              --cnt;
             }
 
             // Iterate orver the 0y peaks (single charged y-ions)
@@ -733,12 +741,26 @@ void TideSearchApplication::search(void* threadarg) {
               --cnt;
             }
             double entropy = 0.0;
+            
+            
+            int sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0);
+            
+            for(int i=0; i < hit_distribution.size(); i++){
+              hit_distribution[i] /= sum_of_elems + 1e-9;
+              entropy += (-1* hit_distribution[i] * log(hit_distribution[i])); 
+            }
 
-            for entropy += hit_distribution[i] * log(hit_distributionp[i])
+           
             //calculate the entropy. 
             
+          
+
+           
+            int list_len = hit_distribution.size();
+            int normalized_ent = entropy/(-1*log(1/list_len));
+ 
             
-            curScore.entropy = entropy;
+            curScore.entropy = normalized_ent;
 
             match_arr.push_back(curScore);
           }
