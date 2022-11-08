@@ -770,6 +770,7 @@ void TideSearchApplication::search(void* threadarg) {
             //calculate the entropy. 
             double entropy = 0.0;       
             curScore.entropy = entropy;
+            curScore.value1 = new_something; //for_sufiyan
 /*            double sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0) + 1e-7 ;
             printf("entropy: %lf\n", entropy);
             printf("sum_of_elems: %lf\n", total_hits);

@@ -602,6 +602,7 @@ void TideMatchSet::writeToFile(
         *file << StringUtils::ToString(i->tailor, precision, true) << '\t';
       }
       *file << StringUtils::ToString(i->entropy, precision, true) << '\t';
+      *file << StringUtils::ToString(i->value1, precision, true) << '\t';  \\ for_sufiyan
       break;
     case RESIDUE_EVIDENCE_MATRIX:
       if (exact_pval_search_) {
@@ -745,7 +746,8 @@ void TideMatchSet::writeHeaders(
         if (Params::GetBool("use-tailor-calibration")) {
           colPrint(&writtenHeader, file, get_column_header(TAILOR_COL));
         }
-        colPrint(&writtenHeader, file, "Entropy");
+        colPrint(&writtenHeader, file, "Entropy"); /for_sufiyan
+        colPrint(&writtenHeader, file, "Value1"); /for_sufiyan
         if (!brief) {
           colPrint(&writtenHeader, file, get_column_header(XCORR_RANK_COL));
         }
