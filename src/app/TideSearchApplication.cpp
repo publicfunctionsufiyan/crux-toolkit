@@ -17,6 +17,8 @@
 #include <math.h> //Added by Andy Lin
 #include <map> //Added by Andy Lin
 #include <numeric>
+#include <cmath>
+
 
 using namespace std;
 
@@ -766,11 +768,57 @@ void TideSearchApplication::search(void* threadarg) {
                 
               --cnt;
             }
+            
+            int list_len = hit_distribution.size();  //length of vector hit_distribution
+            int sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0);  //sum of all elements in vector hit_distribution
+
+            int mid_val = (hit_distribution.begin() + hit_distribution.size()) / 2;   //middle value of the vector hit_distribution
+
+            if (list_len % 2 != 0)
+            {
+              hit_distribution.erase((hit_distribution.begin() + hit_distribution.size()) / 2):
+            }
+
+            vector<int> vect1;
+            vector<int> vect2;
+
+            int dvl = floor(list_len / 2);
+            int dvl2 = dvl+1
+
+            for(int i = 0; i<dvl; i++)
+            {
+              int y = hit_distribution[i] / sum_of_elems
+              vect1.push_back(y);
+
+              int y = 0
+            }
+
+           s for(i = dvl; i<=list_len; i++)
+            {
+              int y = hit_distribution[i] / sum_of_elems
+              vect2.push_back(y);
+              int y = 0
+            }
+
+
+            int sumv1 = std::accumulate(vect1.begin(), vect1.end(), 0);
+            int sumv2 = std::accumulate(vect2.begin(), vect2.end(), 0);
+
+
+
+            int result_value = log(sumv1/sumv2);
+            
+
+
+
+            
+
+
             // printf("total_hits : %d\n", total_hits);
             //calculate the entropy. 
             double entropy = 0.0;       
             curScore.entropy = entropy;
-            curScore.value1 = new_something; //for_sufiyan
+            curScore.value1 = result_value; //for_sufiyan
 /*            double sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0) + 1e-7 ;
             printf("entropy: %lf\n", entropy);
             printf("sum_of_elems: %lf\n", total_hits);
