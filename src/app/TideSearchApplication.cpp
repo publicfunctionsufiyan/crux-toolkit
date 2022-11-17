@@ -773,17 +773,19 @@ void TideSearchApplication::search(void* threadarg) {
 
             //SUFIYAN  NEW VALUE 
             int list_len = hit_distribution.size();  //length of vector hit_distribution
-            int sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0);  //sum of all elements in vector hit_distribution
+            int sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0); 
 
-            int mid_val = (hit_distribution.begin() + hit_distribution.size()) / 2;   //middle value of the vector hit_distribution
 
             if (list_len % 2 != 0)
             {
-              hit_distribution.erase((hit_distribution.begin() + hit_distribution.size()) / 2):
+              int mid_val = floor(list_len / 2);
+              int mid_val_rmv = mid_val - 1;
+
+              hit_distribution.erase(hit_distribution.begin()+mid_val_rmv);
             }
 
-            vector<int> v1;
-            vector<int> v2;
+            vector<double> v1;
+            vector<double> v2;
             
             int dvl = floor(list_len / 2);
             int dvl2 = dvl+1;
@@ -791,16 +793,15 @@ void TideSearchApplication::search(void* threadarg) {
             for(int i = 0; i<dvl; i++)
             {
               int y = hit_distribution[i] / sum_of_elems;
-              vect1.push_back(y);
-
-              int y = 0;
+              v1.push_back(y);
+              y = 0;
             }
             
-            for(i = dvl; i<=list_len; i++)
+            for(int i = dvl; i<=list_len; i++)
             {
               int y = hit_distribution[i] / sum_of_elems;
-              vect2.push_back(y);
-              int y = 0;
+              v2.push_back(y);
+              y = 0;
             }
             
             
