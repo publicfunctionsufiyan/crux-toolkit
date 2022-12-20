@@ -773,7 +773,7 @@ void TideSearchApplication::search(void* threadarg) {
             //SUFIYAN  GINI INDEX
             
             
-            double* arr = &hit_distribution[0];
+           // double* arr = &hit_distribution[0];
 
             //template<typename Iter>
 
@@ -783,13 +783,16 @@ void TideSearchApplication::search(void* threadarg) {
             int n = 0;
             double num = 0;
             double den = 0;
+            
+            int dist_size = hit_distribution.size();  //length of vector hit_distribution
 
-            int arr_size = sizeof(arr);  //length of vector hit_distribution
+//            int arr_size = sizeof(arr);  //length of vector hit_distribution
 
-            for (auto it = &arr[0]; it != &arr[arr_size]; ++it) {
-              for (auto ti = &arr[0]; ti != it; ++ti) {
+            for (auto it = &hit_distribution[0]; it != &hit_distribution[dist_size]; ++it) {
+              for (auto ti = &hit_distribution[0]; ti != it; ++ti) {
                 num += abs(*it - *ti)*2;
             }
+            
             
             n += 1;
             den += *it;
