@@ -1,7 +1,8 @@
 #include <cstdio>
 #include "app/tide/abspath.h"
 #include "app/tide/records_to_vector-inl.h"
-
+#include <iostream>
+#include <vector>
 #include "io/carp.h"
 #include "parameter.h"
 #include "io/SpectrumRecordWriter.h"
@@ -769,6 +770,40 @@ void TideSearchApplication::search(void* threadarg) {
               --cnt;
             }
             
+            //SUFIYAN  GINI INDEX
+            
+            
+            double* arr = &hit_distribution[0];
+
+            //template<typename Iter>
+
+           // double gini(Iter first, Iter last) {
+              
+
+            int n = 0;
+            double num = 0;
+            double den = 0;
+
+            int arr_size = sizeof(arr);  //length of vector hit_distribution
+
+            for (auto it = &arr[0]; it != &arr[arr_size]; ++it) {
+              for (auto ti = &arr[0]; ti != it; ++ti) {
+                num += abs(*it - *ti)*2;
+            }
+            
+            n += 1;
+            den += *it;
+            }
+            den *= 2*n;
+
+            double gini_index_value = num/den;
+
+            //}
+
+            //double gini_index_value = gini(&arr[0], &arr[arr_size]);
+
+
+
 
 
             //SUFIYAN  NEW VALUE 
@@ -819,8 +854,10 @@ void TideSearchApplication::search(void* threadarg) {
             // printf("total_hits : %d\n", total_hits);
             //calculate the entropy. 
             double entropy = 0.0;       
-            curScore.entropy = entropy;
+            curScore.entropy = entropy; //for_sufiyan
             curScore.value1 = result_value; //for_sufiyan
+            curScore.gini_index = gini_index_value;
+            
 /*            double sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0) + 1e-7 ;
             printf("entropy: %lf\n", entropy);
             printf("sum_of_elems: %lf\n", total_hits);
