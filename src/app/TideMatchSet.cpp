@@ -548,7 +548,7 @@ void TideMatchSet::writeToFile(
     flankingAAs = n_term + c_term;
 
     // look for other locations
-    if (peptide->HasAuxLocationsIndex()) {
+  /*  if (peptide->HasAuxLocationsIndex()) {
       const pb::AuxLocation* aux = locations[peptide->AuxLocationsIndex()];
       for (int j = 0; j < aux->location_size(); j++) {
         const pb::Location& location = aux->location(j);
@@ -560,7 +560,7 @@ void TideMatchSet::writeToFile(
         flankingAAs += "," + n_term + c_term;
       }
     }
-
+*/
     const SpScorer::SpScoreData* sp_data = sp_map ? &(sp_map->at(i).first) : NULL;
 
     if (rwlock != NULL) { rwlock->lock(); }
@@ -602,7 +602,8 @@ void TideMatchSet::writeToFile(
         *file << StringUtils::ToString(i->tailor, precision, true) << '\t';
       }
       *file << StringUtils::ToString(i->entropy, precision, true) << '\t';
-      *file << StringUtils::ToString(i->value1, precision, true) << '\t';  // for_sufiyan
+      *file << StringUtils::ToString(i->two_side_ratio, precision, true) << '\t';  // for_sufiyan
+      *file << StringUtils::ToString(i->skewness, precision, true) << '\t';  // for_sufiyan
       *file << StringUtils::ToString(i->gini_index, precision, true) << '\t';  // for_sufiyan
 
       break;
@@ -749,7 +750,8 @@ void TideMatchSet::writeHeaders(
           colPrint(&writtenHeader, file, get_column_header(TAILOR_COL));
         }
         colPrint(&writtenHeader, file, "Entropy"); //for_sufiyan
-        colPrint(&writtenHeader, file, "Value1"); //for_sufiyan
+        colPrint(&writtenHeader, file, "two_side_ratio"); //for_sufiyan
+        colPrint(&writtenHeader, file, "Skewness"); //for_sufiyan
         colPrint(&writtenHeader, file, "Gini_Index"); //for_sufiyan
 
         if (!brief) {

@@ -42,7 +42,8 @@ class TideMatchSet {
     int rank;
     double tailor;  //Added by AKF    
     double entropy;//for_sufiyan
-    double value1; //for_sufiyan
+    double two_side_ratio; //for_sufiyan
+    double skewness;//for_sufiyan
     double gini_index;//for_sufiyan
 
     /*// added by Yang

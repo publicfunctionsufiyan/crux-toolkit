@@ -273,10 +273,10 @@ int TideSearchApplication::main(const vector<string>& input_files, const string 
   // Read auxlocs index file
   carp(CARP_INFO, "Reading auxiliary locations.");  
   vector<const pb::AuxLocation*> locations;
-  if (!ReadRecordsToVector<pb::AuxLocation>(&locations, auxlocs_file)) {
+/*  if (!ReadRecordsToVector<pb::AuxLocation>(&locations, auxlocs_file)) {
     carp(CARP_FATAL, "Error reading index (%s)", auxlocs_file.c_str());
   }
-  carp(CARP_DEBUG, "Read %d auxiliary locations.", locations.size());
+*/  carp(CARP_DEBUG, "Read %d auxiliary locations.", locations.size());
 
   // Read peptides index file
   pb::Header peptides_header;
@@ -707,61 +707,42 @@ void TideSearchApplication::search(void* threadarg) {
             // Caculate the entropy here.
             int peptide_len = (*iter_)->peaks_0b.size()+1;
             vector<double> hit_distribution(peptide_len, 1e-7);
-            // hit_distribution.reserve(peptide_len); 
-            // printf("peaks_0b_len: %lu\n", (*iter_)->peaks_0b.size());
-            // printf("peaks_1b_len: %lu\n", (*iter_)->peaks_1b.size());
-            // printf("peaks_0y_len: %lu\n", (*iter_)->peaks_0y.size());
-            // printf("peaks_1y_len: %lu\n", (*iter_)->peaks_1y.size());
-            // printf("xcorr score : %d\n", it->first);
-            
+                        
             // Iterate orver the 0b peaks (single charged b-ions)
             int cnt = 0;
             int total_hits = 0;
             for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_0b.begin(); iter_uint != (*iter_)->peaks_0b.end(); iter_uint++) {
               unsigned int peak_idx = *iter_uint;
-              // printf("peak_idx: %lu\n", peak_idx);
-              // printf("cache[%u]: %d\n", peak_idx, cache[peak_idx]);
               if (cache[peak_idx] > 0 ) {
                 hit_distribution[cnt] += 1;
                 ++total_hits;
               }
               ++cnt;
             }
-            // printf("cnt: %d\n", cnt);
             cnt = 0;
             // Iterate orver the 1b peaks (double charged b-ions)
             for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_1b.begin(); iter_uint != (*iter_)->peaks_1b.end(); iter_uint++) {
               unsigned int peak_idx = *iter_uint;
-              // printf("peak_idx: %lu\n", peak_idx);
-              // printf("cache[%u]: %d\n", peak_idx, cache[peak_idx]);
               if (cache[peak_idx] > 0 ) {
                 hit_distribution[cnt] += 1;
                 ++total_hits;
               }
               ++cnt;
             }
-            // printf("cnt: %d\n", cnt);
-
             // Iterate orver the 0y peaks (single charged y-ions)
             cnt = peptide_len-1;
             for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_0y.begin(); iter_uint != (*iter_)->peaks_0y.end(); iter_uint++) {
               unsigned int peak_idx = *iter_uint;
-              // printf("peak_idx: %u\n", peak_idx);
-              // printf("cache[%u]: %d\n", peak_idx, cache[peak_idx]);
               if (cache[peak_idx] > 0 ) {
                 hit_distribution[cnt] += 1;
                 ++total_hits;
               }                
               --cnt;
             }
-            // printf("cnt: %d\n", cnt);
-
             cnt = peptide_len-1;
             // Iterate orver the 1y peaks (double charged y-ions)
             for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_1y.begin(); iter_uint != (*iter_)->peaks_1y.end(); iter_uint++) {
               unsigned int peak_idx = *iter_uint;
-              // printf("peak_idx: %u\n", peak_idx);
-              // printf("cache[%u]: %d\n", peak_idx, cache[peak_idx]);
               if (cache[peak_idx] > 0 ) {
                 hit_distribution[cnt] += 1;
                 ++total_hits;
@@ -769,149 +750,66 @@ void TideSearchApplication::search(void* threadarg) {
                 
               --cnt;
             }
-            
-            //SUFIYAN  GINI INDEX
-            
-            
-           // double* arr = &hit_distribution[0];
-
-            //template<typename Iter>
-
-           // double gini(Iter first, Iter last) {
-              
-
-            int n = 0;
-            double num = 0;
-            double den = 0;
-            
-            int dist_size = hit_distribution.size();  //length of vector hit_distribution
-
-//            int arr_size = sizeof(arr);  //length of vector hit_distribution
-
-            for (auto it = &hit_distribution[0]; it != &hit_distribution[dist_size]; ++it) {
-              for (auto ti = &hit_distribution[0]; ti != it; ++ti) {
-                num += abs(*it - *ti)*2;
-            }
-            
-            
-            n += 1;
-            den += *it;
-            }
-            den *= 2*n;
-
-            double gini_index_value = num/den;
-
-            //}
-
-            //double gini_index_value = gini(&arr[0], &arr[arr_size]);
-
-
-
-
-
-            //SUFIYAN  NEW VALUE 
-            int list_len = hit_distribution.size();  //length of vector hit_distribution
-            int sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0); 
-
-
-            if (list_len % 2 != 0)
-            {
-              int mid_val = floor(list_len / 2);
-              int mid_val_rmv = mid_val - 1;
-
-              hit_distribution.erase(hit_distribution.begin()+mid_val_rmv);
-            }
-
-            vector<double> v1;
-            vector<double> v2;
-            
-            int dvl = floor(list_len / 2);
-            int dvl2 = dvl+1;
-
-            for(int i = 0; i<dvl; i++)
-            {
-              int y = hit_distribution[i] / sum_of_elems;
-              v1.push_back(y);
-              y = 0;
-            }
-            
-            for(int i = dvl; i<=list_len; i++)
-            {
-              int y = hit_distribution[i] / sum_of_elems;
-              v2.push_back(y);
-              y = 0;
-            }
-            
-            
-            int s1 = std::accumulate(v1.begin(), v1.end(), 0);
-            int s2 = std::accumulate(v2.begin(), v2.end(), 0);
-
-            int result_value = log(s1/s2);
-            
-
-
-
-            
-
-
-            // printf("total_hits : %d\n", total_hits);
-            //calculate the entropy. 
-            double entropy = 0.0;       
-            curScore.entropy = entropy; //for_sufiyan
-            curScore.value1 = result_value; //for_sufiyan
-            curScore.gini_index = gini_index_value;
-            
-/*            double sum_of_elems = std::accumulate(hit_distribution.begin(), hit_distribution.end(), 0) + 1e-7 ;
-            printf("entropy: %lf\n", entropy);
-            printf("sum_of_elems: %lf\n", total_hits);
-  */          
-            if (total_hits > 0) {
+            if (total_hits > 3) {
               int list_len = hit_distribution.size();
-              // printf("list_len : %d\n", list_len);
+
+              //Calculate the ratio of hits
+              int center = floor(list_len / 2);
+              double s1 = 0;
+              double s2 = 0;
               for(int i=0; i < list_len; i++){
-                // printf("hit_distribution[%d]: %lf\n", i, hit_distribution[i]);
+                if (i < center) 
+                  s1 += hit_distribution[i];
+                else 
+                  s2 += hit_distribution[i];
+              }                  
+              curScore.two_side_ratio = log(s1/s2);
+              
+              // Calculate entorpy
+              double entropy = 0.0;
+              for(int i=0; i < list_len; i++){
                 hit_distribution[i] /= total_hits;
-                // printf("normalized hit_distribution[%d]: %lf\n", i, hit_distribution[i]);
                 entropy += (-1.0 * hit_distribution[i] * log(hit_distribution[i])); 
-                // printf("entropy: %lf\n", entropy);
+              }              
+              curScore.entropy = entropy/(-1*log(1.0/(double)list_len));
+
+              //calculate GINI index
+              double G = 0.0;
+              double cumulative_population = 1.0;
+              double fraction = 1/(double)list_len;
+              for(int i=0; i < list_len; i++){
+                  cumulative_population -= fraction;
+                  G += hit_distribution[i]*(fraction + 2*cumulative_population);
+              }
+              curScore.gini_index = 1 - G;
+                           
+              //calculate statistical skewness instead
+              double mean = 0.0;
+              for(int i=0; i < list_len; i++){
+                mean += (i+1)*hit_distribution[i];
               }
               
-              curScore.entropy = entropy/(-1*log(1.0/(double)list_len));
+              double std = 0.0;
+              for(int i=0; i < list_len; i++){
+                std += pow((i - mean + 1), 2)*hit_distribution[i];
+              }
+              double std3 = pow(sqrt(std), 3);
+              
+              double mean3 = pow(mean,3);
+              double skewness = 0.0;
+              for(int i=0; i < list_len; i++){
+                skewness += pow(i - mean + 1, 3)*hit_distribution[i];
+              }
+              curScore.skewness = skewness/std3;
+              if (curScore.skewness > 3.0)
+                curScore.skewness = 3.0;
+              if (curScore.skewness < -3.0)
+                curScore.skewness = -3.0;
+              
             }
-            // printf("curScore.entropy: %lf\n", curScore.entropy);
-
-            match_arr.push_back(curScore);
+            match_arr.push_back(curScore);            
           }
         }
-
-
-
-/*
-  //Scoring in C++		
-  deque<Peptide*>::const_iterator iter_ = active_peptide_queue->iter_;
-  TideMatchSet::Arr2::iterator it = match_arr->begin();
-  const int* cache = observed.GetCache();        
-  int cnt = 0;
-  for (; iter_ != active_peptide_queue->end_; ++iter_, ++it, ++cnt) {
-    int xcorr = 0;
-
-    // Score with single charged theoretical peaks
-    for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_0.begin();
-      iter_uint != (*iter_)->peaks_0.end();
-      iter_uint++) {
-      xcorr += cache[*iter_uint];
-    }
-    // Score with double charged theoretical peaks
-    if (charge > 2){
-      for (vector<unsigned int>::const_iterator iter_uint = (*iter_)->peaks_1.begin();
-        iter_uint != (*iter_)->peaks_1.end();
-        iter_uint++) {
-        xcorr += cache[*iter_uint];
-      }
-    }
-    
-*/
-
         TideMatchSet matches(&match_arr, highest_mz);
 
         matches.exact_pval_search_ = exact_pval_search;
