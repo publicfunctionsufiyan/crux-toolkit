@@ -193,8 +193,8 @@ void Peptide::Compile(const TheoreticalPeakArr* peaks,
   
   peaks_0b.reserve(peaks[0].size());
   peaks_0y.reserve(peaks[0].size());
-  peaks_1b.reserve(peaks[0].size());
-  peaks_1y.reserve(peaks[0].size());
+  peaks_1b.reserve(peaks[1].size());
+  peaks_1y.reserve(peaks[1].size());
 
   for (i = 0; i < peaks[0].size(); ++i) {
     peaks_0.push_back(peaks[0][i]);

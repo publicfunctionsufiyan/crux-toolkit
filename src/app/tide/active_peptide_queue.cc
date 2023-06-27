@@ -296,6 +296,10 @@ int ActivePeptideQueue::CountAAFrequency(
   double** dAAFreqC,
   int** iAAMass
 ) {
+  
+    FILE *fp = fopen("theoretical_spectra.mgf", "w");
+    unsigned long peptide_cnt = 1;
+    int charge = 3;
 
     unsigned int i = 0;
     unsigned int cntTerm = 0;
@@ -311,9 +315,45 @@ int ActivePeptideQueue::CountAAFrequency(
     while (!(reader_->Done())) { // read all peptides in index
       reader_->Read(&current_pb_peptide_);
 //      Peptide* peptide = new(&fifo_alloc_peptides_) Peptide(current_pb_peptide_, proteins_, &fifo_alloc_peptides_);
-      Peptide* peptide = new Peptide(current_pb_peptide_, proteins_, NULL);              
+      Peptide* peptide = new Peptide(current_pb_peptide_, proteins_, NULL);        
+      if (peptide->IsDecoy())
+        continue;
+      
+      if (peptide->Mass() > 3000)
+        continue;
 
       vector<double> dAAResidueMass = peptide->getAAMasses(); //retrieves the amino acid masses, modifications included
+      
+      string peptide_seq_with_mod = peptide->SeqWithMods();
+      fprintf(fp, "BEGIN IONS\nTITLE=%s, NativeID:\"scan=%d\"\n",peptide_seq_with_mod.c_str(), peptide_cnt++); 
+      double pept_mass = peptide->Mass();
+      pept_mass = (pept_mass + (charge)*MASS_PROTON)/charge; 
+      fprintf(fp, "PEPMASS=%g\n", pept_mass);
+      fprintf(fp, "CHARGE=%d+\n", charge);
+      // Add all charge 1 B ions.
+      double total = 0.0;
+      double charged_peak = 0.0;
+      for (int i = 0; i < dAAResidueMass.size()-1; ++i) {
+        total += dAAResidueMass[i];
+        charged_peak = (total + MASS_PROTON + MassConstants::B);
+        if (charged_peak < 3000)
+          fprintf(fp, "%.4lf\t1.0\n", charged_peak);
+        charged_peak = (total + 2*MASS_PROTON+ MassConstants::B)/2;
+        if (charged_peak < 3000)
+          fprintf(fp, "%.4lf\t1.0\n", charged_peak);        
+      }
+      total = 0.0;//dAAResidueMass[dAAResidueMass.size()-1];
+      for (int i = dAAResidueMass.size()-1; i >= 1; --i) {
+        total += dAAResidueMass[i];
+        charged_peak = (total + MASS_PROTON + MassConstants::Y);
+        if (charged_peak < 3000)
+          fprintf(fp, "%.4lf\t1.0\n", charged_peak);
+        charged_peak = (total + 2*MASS_PROTON+ MassConstants::Y)/2;
+        if (charged_peak < 3000)
+          fprintf(fp, "%.4lf\t1.0\n", charged_peak);        
+        
+      }
+      fprintf(fp, "END IONS\n\n");
 
       int nLen = peptide->Len(); //peptide length
       ++nvAAMassCounterN[(unsigned int)(dAAResidueMass[0] / binWidth + 1.0 - binOffset)];
@@ -327,6 +367,8 @@ int ActivePeptideQueue::CountAAFrequency(
       // fifo_alloc_peptides_.ReleaseAll();
       delete peptide;
     }
+  fclose(fp);
+  exit(0);
   //calculate the unique masses
   unsigned int uiUniqueMasses = 0;
   for (i = 0; i < MaxModifiedAAMassBin; ++i) {
@@ -350,7 +392,6 @@ int ActivePeptideQueue::CountAAFrequency(
       cnt++;
     }
   }
-
   delete[] nvAAMassCounterN;
   delete[] nvAAMassCounterI;
   delete[] nvAAMassCounterC;

@@ -705,7 +705,19 @@ void TideSearchApplication::search(void* threadarg) {
             }    
             
             // Caculate the entropy here.
-            int peptide_len = (*iter_)->peaks_0b.size()+1;
+            int peptide_len = (*iter_)->peaks_0b.size();
+            
+            if ( peptide_len < (*iter_)->peaks_1b.size() )
+              peptide_len = (*iter_)->peaks_1b.size();
+            
+            if ( peptide_len < (*iter_)->peaks_0y.size() )
+              peptide_len = (*iter_)->peaks_0y.size();
+            
+            if ( peptide_len < (*iter_)->peaks_1y.size() )
+              peptide_len = (*iter_)->peaks_1y.size();
+            
+            peptide_len += 1;
+            
             vector<double> hit_distribution(peptide_len, 1e-7);
                         
             // Iterate orver the 0b peaks (single charged b-ions)
